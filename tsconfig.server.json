@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "outDir": "dist",
+    "noEmit": false,
+    "jsx": "react"
+  },
+  "include": ["lib/tcp-server.ts", "lib/video-processor.ts"]
+}
+

@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+      - "8080:8080"
+    environment:
+      - DATABASE_URL=file:/app/prisma/dev.db
+      - TCP_SERVER_PORT=8080
+    volumes:
+      - sqlite-data:/app/prisma
+      - received-frames:/app/received_frames
+      - videos:/app/public/videos
+      - tracking-data:/app/tracking_data
+
+volumes:
+  sqlite-data:
+  received-frames:
+  videos:
+  tracking-data:
+

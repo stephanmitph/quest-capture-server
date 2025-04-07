@@ -1,0 +1,43 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Collection {
+  id          String   @id
+  name        String
+  description String
+  promptText  String
+  duration    String
+  createdAt   DateTime @default(now())
+  videos      Video[]
+}
+
+model Video {
+  id           String     @id
+  date         String
+  time         String
+  duration     String
+  path         String? // Path to the video file
+  collectionId String
+  collection   Collection @relation(fields: [collectionId], references: [id])
+}
+
+model VideoProcessingJob {
+  id           String   @id @default(cuid())
+  clientId     Int
+  collectionId String
+  status       String // 'pending', 'processing', 'completed', 'failed'
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  error        String?
+  videoId      String? // ID of the created video if successful
+}
