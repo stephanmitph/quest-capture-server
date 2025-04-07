@@ -8,7 +8,7 @@ import { useAuth } from "@/lib/auth-context"
 
 export function Sidebar() {
   const pathname = usePathname()
-  const { logout } = useAuth()
+  const { user, login, logout, isLoading } = useAuth()
 
   return (
     <div className="w-60 min-h-screen border-r bg-gray-50">
@@ -50,10 +50,10 @@ export function Sidebar() {
       <div className="absolute bottom-0 w-60 border-t p-4">
         <button
           onClick={logout}
-          className="flex items-center gap-3 p-3 w-full text-left rounded-md hover:bg-gray-100 transition-colors"
+          className="flex items-center gap-5 p-3 w-full text-left rounded-md hover:bg-gray-100 transition-colors"
         >
           <User className="h-5 w-5" />
-          <span>Account</span>
+          <span>{ isLoading ? "Loading..." : user?.username }</span>
         </button>
       </div>
     </div>

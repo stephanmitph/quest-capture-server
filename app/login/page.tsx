@@ -1,8 +1,7 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import { Button } from "@/components/ui/button"
@@ -14,8 +13,15 @@ export default function LoginPage() {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
-  const { login } = useAuth()
+  const { login, user, isLoading } = useAuth()
   const router = useRouter()
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (!isLoading && user) {
+      router.push("/collections")
+    }
+  }, [user, isLoading, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,6 +37,14 @@ export default function LoginPage() {
     } catch (err) {
       setError("An error occurred during login")
     }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <p>Loading...</p>
+      </div>
+    )
   }
 
   return (
@@ -63,7 +77,7 @@ export default function LoginPage() {
           </form>
         </CardContent>
         <CardFooter className="flex justify-center">
-          <p className="text-sm text-gray-500">For demo: use any username and password</p>
+          <p className="text-sm text-gray-500">Use username: sipuser and password: siplab</p>
         </CardFooter>
       </Card>
     </div>
