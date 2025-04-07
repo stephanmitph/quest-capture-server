@@ -75,9 +75,9 @@ export default function VideoProcessingPage() {
 
   return (
     <AuthLayout>
-      <div className="p-6">
-        <div className="mb-6 flex justify-between items-center">
-          <div>
+      <div className="p-4 md:p-6">
+        <div className="mb-6 flex flex-col md:flex-row md:justify-between md:items-center">
+          <div className="mb-4 md:mb-0">
             <h2 className="text-sm text-gray-500">Processing</h2>
             <h1 className="text-2xl font-bold">Video Processing Jobs</h1>
           </div>
@@ -100,41 +100,49 @@ export default function VideoProcessingPage() {
             ) : jobs.length === 0 ? (
               <div className="text-center py-4">No video processing jobs found</div>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>ID</TableHead>
-                    <TableHead>Collection</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead>Updated</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {jobs.map((job) => (
-                    <TableRow key={job.id}>
-                      <TableCell className="font-mono text-xs">{job.id}</TableCell>
-                      <TableCell>{job.collectionId}</TableCell>
-                      <TableCell className={getStatusColor(job.status)}>
-                        {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
-                      </TableCell>
-                      <TableCell>{formatDate(job.createdAt)}</TableCell>
-                      <TableCell>{formatDate(job.updatedAt)}</TableCell>
-                      <TableCell>
-                        {job.status === "completed" && job.videoId && (
-                          <Link href={`/collections/${job.collectionId}/video/${job.videoId}`}>
-                            <Button variant="outline" size="sm">
-                              View Video
-                            </Button>
-                          </Link>
-                        )}
-                        {job.status === "failed" && <span className="text-xs text-red-500">{job.error}</span>}
-                      </TableCell>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[80px]">ID</TableHead>
+                      <TableHead>Collection</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="hidden md:table-cell">Created</TableHead>
+                      <TableHead className="hidden md:table-cell">Updated</TableHead>
+                      <TableHead>Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {jobs.map((job) => (
+                      <TableRow key={job.id}>
+                        <TableCell className="font-mono text-xs truncate max-w-[80px]">
+                          {job.id.substring(0, 8)}...
+                        </TableCell>
+                        <TableCell>{job.collectionId}</TableCell>
+                        <TableCell className={getStatusColor(job.status)}>
+                          {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell">{formatDate(job.createdAt)}</TableCell>
+                        <TableCell className="hidden md:table-cell">{formatDate(job.updatedAt)}</TableCell>
+                        <TableCell>
+                          {job.status === "completed" && job.videoId && (
+                            <Link href={`/collections/${job.collectionId}/video/${job.videoId}`}>
+                              <Button variant="outline" size="sm">
+                                View
+                              </Button>
+                            </Link>
+                          )}
+                          {job.status === "failed" && (
+                            <span className="text-xs text-red-500 truncate block max-w-[120px]" title={job.error}>
+                              {job.error?.substring(0, 15)}...
+                            </span>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             )}
           </CardContent>
         </Card>

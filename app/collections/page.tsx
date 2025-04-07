@@ -39,9 +39,9 @@ export default function CollectionsPage() {
 
   return (
     <AuthLayout>
-      <div className="p-6">
-        <div className="mb-6 flex justify-between items-center">
-          <div>
+      <div className="p-4 md:p-6">
+        <div className="mb-6 flex flex-col md:flex-row md:justify-between md:items-center">
+          <div className="mb-4 md:mb-0">
             <h2 className="text-sm text-gray-500">Collections</h2>
             <h1 className="text-2xl font-bold">Video Collections</h1>
           </div>
@@ -51,13 +51,13 @@ export default function CollectionsPage() {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {/* Dynamic Collections */}
           {collections.map((collection) => (
             <div key={collection.id} className="relative">
               <Link href={`/collections/${collection.id}`}>
-                <div className="border rounded-lg p-6 hover:shadow-md transition-shadow relative">
-                  <div className="absolute top-4 right-4 text-gray-500 z-10">
+                <div className="border rounded-lg p-4 md:p-6 hover:shadow-md transition-shadow relative">
+                  <div className="absolute top-2 right-2 md:top-4 md:right-4 text-gray-500 z-10">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild onClick={(e) => handleMoreClick(e, collection)}>
                         <button>
@@ -69,11 +69,11 @@ export default function CollectionsPage() {
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
-                  <div className="flex justify-center mb-6">
-                    <Folder className="w-16 h-16" />
+                  <div className="flex justify-center mb-4 md:mb-6">
+                    <Folder className="w-12 h-12 md:w-16 md:h-16" />
                   </div>
-                  <h3 className="text-xl font-bold">{collection.name}</h3>
-                  <p className="text-sm text-gray-500">{collection.description}</p>
+                  <h3 className="text-lg md:text-xl font-bold">{collection.name}</h3>
+                  <p className="text-sm text-gray-500 line-clamp-2">{collection.description}</p>
                 </div>
               </Link>
             </div>
@@ -82,15 +82,15 @@ export default function CollectionsPage() {
           {/* Create New Collection */}
           <button
             onClick={() => setIsCreateModalOpen(true)}
-            className="border rounded-lg p-6 hover:shadow-md transition-shadow border-dashed flex flex-col items-center justify-center"
+            className="border rounded-lg p-4 md:p-6 hover:shadow-md transition-shadow border-dashed flex flex-col items-center justify-center"
           >
-            <div className="flex justify-center mb-6">
+            <div className="flex justify-center mb-4 md:mb-6">
               <div className="relative">
-                <Folder className="w-16 h-16" />
-                <Plus className="w-6 h-6 absolute bottom-0 right-0 bg-white rounded-full" />
+                <Folder className="w-12 h-12 md:w-16 md:h-16" />
+                <Plus className="w-5 h-5 md:w-6 md:h-6 absolute bottom-0 right-0 bg-white rounded-full" />
               </div>
             </div>
-            <h3 className="text-xl font-bold">Create a new collection</h3>
+            <h3 className="text-lg md:text-xl font-bold">Create a new collection</h3>
           </button>
         </div>
 

@@ -33,7 +33,7 @@ export default function CollectionPage() {
   if (!collection) {
     return (
       <AuthLayout>
-        <div className="p-6">
+        <div className="p-4 md:p-6">
           <div className="text-center py-12">
             <h2 className="text-xl">Loading...</h2>
           </div>
@@ -60,11 +60,11 @@ export default function CollectionPage() {
 
   return (
     <AuthLayout>
-      <div className="p-6">
+      <div className="p-4 md:p-6">
         <div className="mb-6">
           <Breadcrumbs items={breadcrumbItems} />
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold">Video Collections</h1>
+            <h1 className="text-xl md:text-2xl font-bold">Video Collections</h1>
             <DropdownMenu>
               <DropdownMenuTrigger asChild onClick={handleMoreClick}>
                 <button className="p-2 hover:bg-gray-100 rounded-full">
@@ -79,15 +79,15 @@ export default function CollectionPage() {
         </div>
 
         {collection.videos.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {collection.videos.map((video: Video) => (
               <Link href={`/collections/${collectionId}/video/${video.id}`} key={video.id}>
-                <div className="border rounded-lg p-6 hover:shadow-md transition-shadow relative">
-                  <button className="absolute top-4 right-4 text-gray-500">
+                <div className="border rounded-lg p-4 md:p-6 hover:shadow-md transition-shadow relative">
+                  <button className="absolute top-2 right-2 md:top-4 md:right-4 text-gray-500">
                     <MoreVertical className="h-5 w-5" />
                   </button>
-                  <div className="flex justify-center mb-6">
-                    <Film className="w-16 h-16" />
+                  <div className="flex justify-center mb-4 md:mb-6">
+                    <Film className="w-12 h-12 md:w-16 md:h-16" />
                   </div>
                   <h3 className="text-lg font-bold">{`${video.date} ${video.time}`}</h3>
                   <p className="text-sm text-gray-500">{video.duration}</p>

@@ -59,7 +59,7 @@ export default function VideoDetailPage() {
   if (loading) {
     return (
       <AuthLayout>
-        <div className="p-6">
+        <div className="p-4 md:p-6">
           <div className="text-center py-12">
             <h2 className="text-xl">Loading...</h2>
           </div>
@@ -71,7 +71,7 @@ export default function VideoDetailPage() {
   if (!collection || !video) {
     return (
       <AuthLayout>
-        <div className="p-6">
+        <div className="p-4 md:p-6">
           <div className="text-center py-12">
             <h2 className="text-xl">Video not found</h2>
           </div>
@@ -87,25 +87,25 @@ export default function VideoDetailPage() {
 
   return (
     <AuthLayout>
-      <div className="p-6">
+      <div className="p-4 md:p-6">
         <div className="mb-6">
           <Breadcrumbs items={breadcrumbItems} />
-          <h1 className="text-2xl font-bold">
+          <h1 className="text-xl md:text-2xl font-bold">
             Video {video.date} {video.time}
           </h1>
         </div>
 
         <div className="flex flex-col items-center">
-          <div className="w-full max-w-4xl border rounded-lg p-6 mb-4 aspect-video flex items-center justify-center">
+          <div className="w-full max-w-4xl border rounded-lg p-4 md:p-6 mb-4 aspect-video flex items-center justify-center">
             {video.path ? (
               <video className="w-full h-full" controls src={video.path}>
                 Your browser does not support the video tag.
               </video>
             ) : (
               <div className="relative">
-                <Video className="w-32 h-32" />
+                <Video className="w-24 h-24 md:w-32 md:h-32" />
                 <div className="absolute bottom-0 left-0 p-2">
-                  <Rewind className="w-6 h-6" />
+                  <Rewind className="w-5 h-5 md:w-6 md:h-6" />
                 </div>
               </div>
             )}
