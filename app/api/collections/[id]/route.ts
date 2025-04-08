@@ -1,15 +1,12 @@
 import { NextResponse } from "next/server"
-import prisma from "@/lib/prisma"
+import { getCollectionById } from "@/capture/file-storage"
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
     const { id } = await params
 
     // Get the collection by ID with its videos
-    const collection = await prisma.collection.findUnique({
-      where: { id },
-      include: { videos: true },
-    })
+    const collection = await getCollectionById(id)
 
     if (!collection) {
       return NextResponse.json({ success: false, error: "Collection not found" }, { status: 404 })

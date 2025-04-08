@@ -14,6 +14,7 @@ try {
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // distDir: 'dist',
+  output: 'standalone',
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -24,9 +25,9 @@ const nextConfig = {
     unoptimized: true,
   },
   experimental: {
-    // webpackBuildWorker: true,
-    // parallelServerBuildTraces: true,
-    // parallelServerCompiles: true,
+    webpackBuildWorker: true,
+    parallelServerBuildTraces: true,
+    parallelServerCompiles: true,
   },
 }
 

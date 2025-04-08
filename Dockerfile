@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json package-lock.json* ./
-RUN npm ci --force
+RUN npm ci
 
 # Install ffmpeg
 RUN apk add --no-cache ffmpeg
@@ -16,9 +16,6 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
-# Generate Prisma client
-RUN npx prisma generate
 
 # Build the Next.js application
 RUN npm run build
@@ -37,27 +34,18 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 # Copy necessary files
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=builder /app/server.js ./server.js
-COPY --from=builder /dist ./dist
+COPY --from=builder /public ./public
+COPY --from=builder /build/standalone ./
+COPY --from=builder /build/static ./.next/static
+COPY --from=builder /server.js ./server.js
 
-# Create directories for video processing
-RUN mkdir -p /app/received_frames
-RUN mkdir -p /app/public/videos
-RUN mkdir -p /app/tmp
+# Create directories for file-based storage
+RUN mkdir -p /data/collections
+RUN mkdir -p /data/received_frames
+RUN mkdir -p /public/videos
 
 # Set the correct permissions
 RUN chown -R nextjs:nodejs /app
-
-# Run migrations and seed the database
-RUN mkdir -p /app/prisma/migrations
-RUN npx prisma migrate deploy
-RUN npx prisma db seed
 
 USER nextjs
 

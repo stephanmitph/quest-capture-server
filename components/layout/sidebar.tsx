@@ -9,7 +9,7 @@ import { useAuth } from "@/lib/auth-context"
 
 export function Sidebar() {
   const pathname = usePathname()
-  const { logout } = useAuth()
+  const { user, login, logout, isLoading } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
 
   // Close sidebar when route changes on mobile
@@ -118,7 +118,7 @@ export function Sidebar() {
             className="flex items-center gap-3 p-3 w-full text-left rounded-md hover:bg-gray-100 transition-colors"
           >
             <User className="h-5 w-5" />
-            <span>Account</span>
+            <span>{isLoading ? "Loading..." : user?.username}</span>
           </button>
         </div>
       </div>

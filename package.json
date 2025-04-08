@@ -4,8 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "build": "next build &&cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/",
+    "build-capture-server": "npx tsc capture/server.ts --outDir build/tcp-server",
+    "start-capture-server": "node build/tcp-server/server.js",
+    "start": "node .next/standalone/server.js",
     "lint": "next lint"
   },
   "dependencies": {

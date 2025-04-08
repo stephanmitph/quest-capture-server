@@ -1,26 +1,8 @@
 "use client"
 
 import type React from "react"
-
 import { createContext, useContext, useState, useEffect } from "react"
-
-export type Collection = {
-  id: string
-  name: string
-  description: string
-  promptText: string
-  duration: string
-  createdAt: string
-  videos: Video[]
-}
-
-export type Video = {
-  id: string
-  date: string
-  time: string
-  duration: string
-  collectionId: string
-}
+import type { Collection, Video } from "@/capture/file-storage"
 
 type CollectionsContextType = {
   collections: Collection[]
@@ -96,7 +78,7 @@ export function CollectionsProvider({ children }: { children: React.ReactNode })
       const newCollection = data.data
 
       // Update local state
-      setCollections((prev) => [...prev, { ...newCollection, videos: [] }])
+      setCollections((prev) => [...prev, newCollection])
 
       return newCollection
     } catch (error) {
@@ -134,4 +116,6 @@ export function useCollections() {
   }
   return context
 }
+
+export type { Collection, Video }
 
