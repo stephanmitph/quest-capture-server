@@ -1,7 +1,7 @@
 import * as net from "net"
 import * as fs from "fs"
 import * as path from "path"
-import { createVideoDirectory } from "./file-storage"
+import { createVideoDirectory, Video } from "./file-storage"
 import { processVideoFrames } from "./video-processor"
 
 // Configuration
@@ -15,7 +15,7 @@ const clients = new Map<
     socket: net.Socket
     frameCount: number
     buffer: Buffer
-    state: "MESSAGE_TYPE" | "BEGIN" | "TRACKING_LENGTH" | "TRACKING_DATA" | "IMAGE_LENGTH" | "IMAGE_DATA" | "END"
+    state: "MESSAGE_TYPE" | "BEGIN" | "TRACKING_LENGTH" | "TRACKING_DATA" | "IMAGE_LENGTH" | "IMAGE_DATA"
     videoId: string | null
     videoDir: string | null
     collectionId: string | null
@@ -97,22 +97,18 @@ async function processData(clientId: number): Promise<void> {
         } else if (client.messageType === 1) {
           client.state = "TRACKING_LENGTH"
         } else if (client.messageType === 2) {
-          client.state = "END"
+          endRecording(clientId)
         } else {
           console.error(`Client #${clientId}: Unknown message type: ${client.messageType}`)
           client.state = "MESSAGE_TYPE"
         }
         break
       case "BEGIN":
-        if (client.buffer.length < 1) return
-        client.collectionId = client.buffer[0].toString()
+        if (client.buffer.length < 4) return
+        client.collectionId = client.buffer.readInt32LE(0).toString()
+        client.buffer = client.buffer.subarray(4)
+        client.state = "MESSAGE_TYPE"
         await initializeRecording(clientId);
-        client.buffer = client.buffer.subarray(1)
-        client.state = "MESSAGE_TYPE"
-        break;
-      case "END":
-        await endRecording(clientId)
-        client.state = "MESSAGE_TYPE"
         break;
       case "TRACKING_LENGTH":
         // Need at least 4 bytes for tracking length
@@ -181,8 +177,8 @@ async function initializeRecording(clientId: number): Promise<void> {
 
   client.frameCount = 0
   client.trackingData = []
-  client.videoId = videoInfo!.videoId 
-  client.videoDir = videoInfo!.directory 
+  client.videoId = videoInfo!.videoId
+  client.videoDir = videoInfo!.directory
   client.expectedLength = null
   client.messageType = null
   console.log(`Client #${clientId} initialized recording`)
@@ -191,6 +187,8 @@ async function initializeRecording(clientId: number): Promise<void> {
 async function endRecording(clientId: number): Promise<void> {
   const client = clients.get(clientId)!
   saveTrackingData(clientId)
+  saveVideoInfo(clientId)
+  // createVideoInfo(client.videoId!, client.videoDir!, client.collectionId!);
   // await processVideoFrames(client.videoId!, client.videoDir!, client.collectionId!)
 }
 
@@ -217,13 +215,6 @@ function saveTrackingData(clientId: number): void {
   const client = clients.get(clientId)!
   const filepath = path.join(client.videoDir!, "tracking_data.json")
   if (client.trackingData.length === 0) return
-
-  if (client.trackingData.length > 1) {
-    const duration = (client.trackingData[client.trackingData.length - 1].timestamp - client.trackingData[0].timestamp) / 1000
-    console.log("Duration: ", duration)
-    console.log("Average FPS: ", client.trackingData.length / duration)
-  }
-
   try {
     fs.writeFileSync(filepath, JSON.stringify(client.trackingData, null, 2))
   } catch (err) {
@@ -231,6 +222,26 @@ function saveTrackingData(clientId: number): void {
   }
 }
 
+function saveVideoInfo(clientId: number): void {
+  const client = clients.get(clientId)!
+  const filepath = path.join(client.videoDir!, "info.json")
+
+  const duration = (client.trackingData[client.trackingData.length - 1].timestamp - client.trackingData[0].timestamp) / 1000
+
+  let videoInfo = {
+    id: client.videoId,
+    time: client.videoId,
+    duration: duration ?? 0,
+    averageFps: duration != null ? client.trackingData.length / duration : 0,
+    path: client.videoDir,
+  } as Video
+
+  try {
+    fs.writeFileSync(filepath, JSON.stringify(videoInfo, null, 2))
+  } catch (err) {
+    console.error(`Error saving video info: ${err}`)
+  }
+}
 // Handle a complete image frame
 function saveImageFrame(clientId: number, frameData: Buffer): void {
   const client = clients.get(clientId)!

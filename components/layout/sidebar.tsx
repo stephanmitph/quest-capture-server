@@ -101,16 +101,6 @@ export function Sidebar() {
             <Film className="h-5 w-5" />
             <span>Video Collections</span>
           </Link>
-          <Link
-            href="/video-processing"
-            className={cn(
-              "flex items-center gap-3 p-3 rounded-md hover:bg-gray-100 transition-colors",
-              pathname.includes("/video-processing") && "bg-gray-200",
-            )}
-          >
-            <Settings className="h-5 w-5" />
-            <span>Video Processing</span>
-          </Link>
         </nav>
         <div className="absolute bottom-0 w-60 border-t p-4">
           <button

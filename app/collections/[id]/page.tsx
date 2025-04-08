@@ -89,8 +89,8 @@ export default function CollectionPage() {
                   <div className="flex justify-center mb-4 md:mb-6">
                     <Film className="w-12 h-12 md:w-16 md:h-16" />
                   </div>
-                  <h3 className="text-lg font-bold">{`${video.date} ${video.time}`}</h3>
-                  <p className="text-sm text-gray-500">{video.duration}</p>
+                  <h3 className="text-lg font-bold">{`${video.time}`}</h3>
+                  <p className="text-sm text-gray-500">{new Date(parseInt(video.time)).toUTCString()}</p>
                 </div>
               </Link>
             ))}

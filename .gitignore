@@ -3,4 +3,5 @@ node_modules
 .env
 .next
 build
+data/*
 .DS_Store

@@ -14,12 +14,17 @@ const DATA_DIR = path.join(process.cwd(), "data")
 const DEFAULT_COLLECTION = path.join(DATA_DIR, "default")
 
 // Ensure directories exist
-export function ensureDirectoriesExist() {
+export async function ensureDirectoriesExist() {
   if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true })
   }
   if (!fs.existsSync(DEFAULT_COLLECTION)) {
-    fs.mkdirSync(DEFAULT_COLLECTION, { recursive: true })
+    await createCollection({
+      name: "Default",
+      description: "Default collection for videos",
+      promptText: "Default collection for videos",
+      duration: "30",
+    })
   }
 }
 
@@ -36,19 +41,19 @@ export interface Collection {
 
 export interface Video {
   id: string
-  date: string
   time: string
-  duration: string
+  duration: number
+  averageFps: number
   path?: string
-  collectionId: string
 }
 
 // Collection operations
 export async function getCollections(): Promise<Collection[]> {
-  ensureDirectoriesExist()
+  await ensureDirectoriesExist()
 
   try {
     const collectionDirs = await readdir(DATA_DIR)
+    console.log("Collection directories:", collectionDirs)
 
     const collections = await Promise.all(
       collectionDirs.map(async (dir) => {
@@ -81,8 +86,6 @@ export async function getCollections(): Promise<Collection[]> {
 }
 
 export async function getCollectionById(id: string): Promise<Collection | null> {
-  ensureDirectoriesExist()
-
   try {
     const collectionPath = path.join(DATA_DIR, id)
     const infoPath = path.join(collectionPath, "info.json")
@@ -107,8 +110,6 @@ export async function getCollectionById(id: string): Promise<Collection | null> 
 export async function createCollection(
   collectionData: Omit<Collection, "id" | "createdAt" | "videos">,
 ): Promise<Collection | null> {
-  ensureDirectoriesExist()
-
   try {
     // Generate ID from name
     const id = collectionData.name.toLowerCase().replace(/\s+/g, "-")
@@ -144,17 +145,16 @@ export async function createCollection(
 export async function getVideosForCollection(collectionId: string): Promise<Video[]> {
   try {
     const collectionPath = path.join(DATA_DIR, collectionId)
-    const videosPath = path.join(collectionPath, "videos")
 
-    if (!fs.existsSync(videosPath)) {
+    if (!fs.existsSync(collectionPath)) {
       return []
     }
 
-    const videoDirs = await readdir(videosPath)
+    const videoDirs = await readdir(collectionPath)
 
     const videos = await Promise.all(
       videoDirs.map(async (dir) => {
-        const videoPath = path.join(videosPath, dir)
+        const videoPath = path.join(collectionPath, dir)
         const infoPath = path.join(videoPath, "info.json")
 
         // Check if it's a directory and has info.json
@@ -162,7 +162,6 @@ export async function getVideosForCollection(collectionId: string): Promise<Vide
         if (!stats.isDirectory() || !fs.existsSync(infoPath)) {
           return null
         }
-
         // Read video info
         const infoData = await readFile(infoPath, "utf8")
         return JSON.parse(infoData) as Video
@@ -179,7 +178,7 @@ export async function getVideosForCollection(collectionId: string): Promise<Vide
 
 export async function createVideoDirectory(
   collectionId: string | "default",
-): Promise<{videoId: string, directory: string} | null> {
+): Promise<{ videoId: string, directory: string } | null> {
   try {
     // Generate a unique ID
     const videoId = `${Date.now()}`
@@ -192,45 +191,16 @@ export async function createVideoDirectory(
     }
 
     // Create video directory
-    await mkdir(videoPath, { recursive: true })
-    return { videoId: videoId, directory: videoPath } 
+    // await mkdir(videoPath, { recursive: true })
+    fs.mkdirSync(videoPath, { recursive: true })
+    return { videoId: videoId, directory: videoPath }
   } catch (error) {
     console.error("Error creating video:", error)
     return null
   }
 }
 
-// Initialize with sample data if needed
-export async function initializeWithSampleData() {
-  ensureDirectoriesExist()
-
-  // Check if collections directory is empty
-  const collections = await readdir(DATA_DIR)
-  if (collections.length === 0) {
-    console.log("Initializing with sample data...")
-
-    // Create sample collections
-    const sportCollection = await createCollection({
-      name: "Sport",
-      description: "Collection of various sports activities",
-      promptText: "Sports activities",
-      duration: "30",
-    })
-
-    const readingCollection = await createCollection({
-      name: "Reading",
-      description: "Collection of reading activities",
-      promptText: "Reading activities",
-      duration: "30",
-    })
-
-    console.log("Sample data initialized")
-  }
-}
-
 // Get paths
 export function getCollectionDir(collectionId: string) {
-  ensureDirectoriesExist()
   return path.join(DATA_DIR, collectionId)
 }
-

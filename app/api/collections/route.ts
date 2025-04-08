@@ -5,7 +5,6 @@ export async function GET(request: Request) {
   try {
     // Get all collections
     const collections = await getCollections()
-
     // Extract just the IDs
     const collectionIds = collections.map((collection) => collection.id)
 
