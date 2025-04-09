@@ -1,11 +1,13 @@
 {
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "module": "commonjs",
-    "outDir": "dist",
-    "noEmit": false,
-    "jsx": "react"
-  },
-  "include": ["lib/tcp-server.ts", "lib/video-processor.ts"]
-}
-
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+      "module": "commonjs",
+      "outDir": "build/",
+      "lib": ["es2019"],
+      "target": "es2019",
+      "isolatedModules": false,
+      "noEmit": false
+    },
+    "include": ["server.ts"]
+  }
+  

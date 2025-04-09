@@ -2,33 +2,37 @@ import * as fs from "fs"
 import * as path from "path"
 import { exec } from "child_process"
 import { promisify } from "util"
+import { Video } from "./file-storage"
 
 const execAsync = promisify(exec)
 
 export interface VideoProcessingResult {
   success: boolean
-  videoPath?: string
   error?: string
 }
 
-export async function processVideoFrames(videoId: string, framesDir: string, collectionId: string): Promise<VideoProcessingResult> {
+export async function createVideo(videoDir: string): Promise<VideoProcessingResult> {
   try {
     // Generate a unique video ID
-    const outputPath = path.join(framesDir, `${videoId}.mp4`)
-    const relativeOutputPath = `/videos/${videoId}.mp4`
+    const outputPath = `${videoDir}/video.mp4`;
 
     // Create a temporary directory for processing
-    const tempDir = path.join(framesDir, "tmp")
+    const tempDir = path.join(videoDir, "tmp")
+
+    // create temp directory if it doesn't exist
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir, { recursive: true })
+    }
 
     // Create list of frames
     const framesListPath = path.join(tempDir, "frames.txt")
     const sortedFramesPath = path.join(tempDir, "sorted_frames.txt")
 
     // Get all frames for this client and sort them
-    const framePattern = `frame*.jpg`
+    const frameRegex = /^frame\d+\.jpg$/;
     const frameFiles = fs
-      .readdirSync(framesDir)
-      .filter((file) => file.match(framePattern))
+      .readdirSync(videoDir)
+      .filter((file) => file.match(frameRegex))
       .sort((a, b) => {
         const numA = Number.parseInt(a.match(/frame(\d+)\.jpg/)?.[1] || "0")
         const numB = Number.parseInt(b.match(/frame(\d+)\.jpg/)?.[1] || "0")
@@ -38,27 +42,21 @@ export async function processVideoFrames(videoId: string, framesDir: string, col
     if (frameFiles.length === 0) {
       throw new Error("No frames found for processing")
     }
-
     // Write frame list to file
-    fs.writeFileSync(framesListPath, frameFiles.map((file) => path.join(framesDir, file)).join("\n"))
+    fs.writeFileSync(framesListPath, frameFiles.map((file) => path.join(videoDir, file)).join("\n"))
 
     // Create sorted frames file for ffmpeg
     await execAsync(`awk '{print "file \\047" $0 "\\047"}' ${framesListPath} > ${sortedFramesPath}`)
 
     // Calculate framerate from tracking data if available
     let framerate = 30 // Default framerate
-    const trackingDataPath = path.join(process.cwd(), "tracking_data.json")
+    const videoInfoPath = path.join(videoDir, "info.json")
 
-    if (fs.existsSync(trackingDataPath)) {
+    if (fs.existsSync(videoInfoPath)) {
       try {
-        const trackingData = JSON.parse(fs.readFileSync(trackingDataPath, "utf8"))
-        if (trackingData.length > 1) {
-          const firstFrame = trackingData[0]
-          const lastFrame = trackingData[trackingData.length - 1]
-          const duration = (lastFrame.timestamp - firstFrame.timestamp) / 1000 // in seconds
-          if (duration > 0) {
-            framerate = Math.round(trackingData.length / duration)
-          }
+        const info = JSON.parse(fs.readFileSync(videoInfoPath, "utf8")) as Video
+        if (info?.averageFps) {
+          framerate = info.averageFps
         }
       } catch (err) {
         console.error("Error calculating framerate from tracking data:", err)
@@ -70,43 +68,11 @@ export async function processVideoFrames(videoId: string, framesDir: string, col
       `ffmpeg -r ${framerate} -f concat -safe 0 -i ${sortedFramesPath} -c:v libx264 -pix_fmt yuv420p ${outputPath}`,
     )
 
-    // Get current date and time
-    const now = new Date()
-    const date = now
-      .toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      })
-      .replace(/\//g, "-")
-
-    const time = now.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    })
-
-    // Calculate duration in seconds
-    const durationInSeconds = Math.round(frameFiles.length / framerate)
-
-    // Add video to collection
-    // const video = await createVideo(collectionId, {
-    //   date,
-    //   time,
-    //   duration: `${durationInSeconds}s`,
-    //   path: relativeOutputPath,
-    // })
-
-    // if (!video) {
-    //   throw new Error("Failed to create video record")
-    // }
-
     // Clean up temporary files
     fs.rmSync(tempDir, { recursive: true, force: true })
 
     return {
       success: true,
-      videoPath: relativeOutputPath,
     }
   } catch (error) {
     console.error("Error processing video frames:", error)

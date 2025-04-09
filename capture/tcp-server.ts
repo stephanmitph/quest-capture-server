@@ -2,7 +2,7 @@ import * as net from "net"
 import * as fs from "fs"
 import * as path from "path"
 import { createVideoDirectory, Video } from "./file-storage"
-import { processVideoFrames } from "./video-processor"
+import { createVideo } from "./video-processor"
 
 // Configuration
 const PORT = Number.parseInt(process.env.TCP_SERVER_PORT || "8080")
@@ -50,18 +50,15 @@ export function createTcpServer(): net.Server {
       const client = clients.get(id)!
       client.buffer = Buffer.concat([client.buffer, data])
 
-      console.log(`Client #${id} sent ${data.length} bytes`)
       // Process as many complete frames as possible
       await processData(id)
     })
 
-    // Handle client disconnection
     socket.on("close", async () => {
       console.log(`Client #${id} disconnected`)
       clients.delete(id)
     })
 
-    // Handle errors
     socket.on("error", (err) => {
       console.error(`Error with client #${id}: ${err.message}`)
       socket.destroy()
@@ -188,18 +185,14 @@ async function endRecording(clientId: number): Promise<void> {
   const client = clients.get(clientId)!
   saveTrackingData(clientId)
   saveVideoInfo(clientId)
-  // createVideoInfo(client.videoId!, client.videoDir!, client.collectionId!);
-  // await processVideoFrames(client.videoId!, client.videoDir!, client.collectionId!)
+  await createVideo(client.videoDir!)
 }
 
 // Handle tracking data
 function handleTrackingData(clientId: number, trackingJson: string): void {
   try {
     const data = JSON.parse(trackingJson)
-
-    // Add client ID and frame number to tracking data
     const client = clients.get(clientId)!
-    data.clientId = clientId
 
     // Add to tracking data array
     client.trackingData.push(data)
@@ -224,7 +217,8 @@ function saveTrackingData(clientId: number): void {
 
 function saveVideoInfo(clientId: number): void {
   const client = clients.get(clientId)!
-  const filepath = path.join(client.videoDir!, "info.json")
+  const infoPath = path.join(client.videoDir!, "info.json")
+  const videoPath = path.join(client.videoDir!, "video.mp4")
 
   const duration = (client.trackingData[client.trackingData.length - 1].timestamp - client.trackingData[0].timestamp) / 1000
 
@@ -233,15 +227,16 @@ function saveVideoInfo(clientId: number): void {
     time: client.videoId,
     duration: duration ?? 0,
     averageFps: duration != null ? client.trackingData.length / duration : 0,
-    path: client.videoDir,
+    path: videoPath.replace(/^.*?(\/data\/)/, '$1')
   } as Video
 
   try {
-    fs.writeFileSync(filepath, JSON.stringify(videoInfo, null, 2))
+    fs.writeFileSync(infoPath, JSON.stringify(videoInfo, null, 2))
   } catch (err) {
     console.error(`Error saving video info: ${err}`)
   }
 }
+
 // Handle a complete image frame
 function saveImageFrame(clientId: number, frameData: Buffer): void {
   const client = clients.get(clientId)!

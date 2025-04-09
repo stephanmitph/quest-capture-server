@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build &&cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/",
+    "build": "next build && cp -r public build/standalone/ && cp -r build/static build/standalone/.next/ && tsc --project tsconfig.server.json",
+    "start": "node .next/standalone/server.js",
     "build-capture-server": "npx tsc capture/server.ts --outDir build/tcp-server",
     "start-capture-server": "node build/tcp-server/server.js",
-    "start": "node .next/standalone/server.js",
     "lint": "next lint"
   },
   "dependencies": {
@@ -47,6 +47,7 @@
     "cmdk": "1.0.4",
     "date-fns": "4.1.0",
     "embla-carousel-react": "8.5.1",
+    "express": "^5.1.0",
     "fs": "latest",
     "http": "latest",
     "input-otp": "1.4.1",
@@ -72,6 +73,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@types/express": "^5.0.1",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
