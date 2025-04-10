@@ -53,7 +53,6 @@ export async function getCollections(): Promise<Collection[]> {
 
   try {
     const collectionDirs = await readdir(DATA_DIR)
-    console.log("Collection directories:", collectionDirs)
 
     const collections = await Promise.all(
       collectionDirs.map(async (dir) => {
@@ -176,9 +175,9 @@ export async function getVideosForCollection(collectionId: string): Promise<Vide
   }
 }
 
-export async function createVideoDirectory(
+export function createVideoDirectory(
   collectionId: string | "default",
-): Promise<{ videoId: string, directory: string } | null> {
+): { videoId: string, directory: string } | null {
   try {
     // Generate a unique ID
     const videoId = `${Date.now()}`

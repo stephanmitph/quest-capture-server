@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build && cp -r public build/standalone/ && cp -r build/static build/standalone/.next/ && tsc --project tsconfig.server.json",
     "start": "node .next/standalone/server.js",
-    "build-capture-server": "npx tsc capture/server.ts --outDir build/tcp-server",
+    "build-capture-server": "npx tsc capture/server.ts --outDir build-capture-server",
     "start-capture-server": "node build/tcp-server/server.js",
     "lint": "next lint"
   },

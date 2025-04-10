@@ -4,10 +4,6 @@ import * as path from "path"
 import { createVideoDirectory, Video } from "./file-storage"
 import { createVideo } from "./video-processor"
 
-// Configuration
-const PORT = Number.parseInt(process.env.TCP_SERVER_PORT || "8080")
-
-// Track client connections
 let clientId = 0
 const clients = new Map<
   number,
@@ -51,7 +47,7 @@ export function createTcpServer(): net.Server {
       client.buffer = Buffer.concat([client.buffer, data])
 
       // Process as many complete frames as possible
-      await processData(id)
+      processData(id)
     })
 
     socket.on("close", async () => {
@@ -77,7 +73,7 @@ export function createTcpServer(): net.Server {
 }
 
 // Process data from the buffer based on state machine
-async function processData(clientId: number): Promise<void> {
+function processData(clientId: number): void {
   const client = clients.get(clientId)!
 
   // Continue processing until we don't have enough data
@@ -94,7 +90,7 @@ async function processData(clientId: number): Promise<void> {
         } else if (client.messageType === 1) {
           client.state = "TRACKING_LENGTH"
         } else if (client.messageType === 2) {
-          endRecording(clientId)
+          endRecording(clientId);
         } else {
           console.error(`Client #${clientId}: Unknown message type: ${client.messageType}`)
           client.state = "MESSAGE_TYPE"
@@ -105,7 +101,7 @@ async function processData(clientId: number): Promise<void> {
         client.collectionId = client.buffer.readInt32LE(0).toString()
         client.buffer = client.buffer.subarray(4)
         client.state = "MESSAGE_TYPE"
-        await initializeRecording(clientId);
+        initializeRecording(clientId);
         break;
       case "TRACKING_LENGTH":
         // Need at least 4 bytes for tracking length
@@ -167,10 +163,10 @@ async function processData(clientId: number): Promise<void> {
   }
 }
 
-async function initializeRecording(clientId: number): Promise<void> {
+function initializeRecording(clientId: number): void {
   const client = clients.get(clientId)!
   console.log("client collectionid: ", client.collectionId)
-  const videoInfo = await createVideoDirectory(client.collectionId! == "0" ? "default" : client.collectionId!)
+  const videoInfo = createVideoDirectory(client.collectionId! == "0" ? "default" : client.collectionId!)
 
   client.frameCount = 0
   client.trackingData = []
@@ -181,11 +177,11 @@ async function initializeRecording(clientId: number): Promise<void> {
   console.log(`Client #${clientId} initialized recording`)
 }
 
-async function endRecording(clientId: number): Promise<void> {
+function endRecording(clientId: number): void {
   const client = clients.get(clientId)!
   saveTrackingData(clientId)
   saveVideoInfo(clientId)
-  await createVideo(client.videoDir!)
+  createVideo(client.videoDir!).then(() => {console.log("video created")})
 }
 
 // Handle tracking data
@@ -240,6 +236,7 @@ function saveVideoInfo(clientId: number): void {
 // Handle a complete image frame
 function saveImageFrame(clientId: number, frameData: Buffer): void {
   const client = clients.get(clientId)!
+  console.log(client.videoDir! + " " + client.frameCount)
   const filePath = path.join(client.videoDir!, `frame${client.frameCount}.jpg`)
 
   fs.writeFile(filePath, frameData, (err) => {
