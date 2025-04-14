@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build && tsc --project tsconfig.server.json",
-    "start": "next start",
+    "start": "node server.js",
     "_start": "NODE_ENV=production node .next/server.js",
     "_build": "next build && cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/ && tsc --project tsconfig.server.json",
     "lint": "next lint"

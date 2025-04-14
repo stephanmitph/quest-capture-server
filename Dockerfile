@@ -1,40 +1,53 @@
-FROM node:18-alpine AS base
+FROM node:23-alpine AS base
+# Builder stage for compiling applications
 FROM base AS builder
+
+WORKDIR /app
+
+# Copy package files first for better caching
+COPY server/package*.json ./server/
+COPY web/package*.json ./web/
+
+# Install dependencies
+RUN cd server && npm install --force
+RUN cd web && npm install --force
+
+# Copy source code
 COPY . .
 
-# Build the Next.js application
-RUN npm run build
-RUN npm run build-capture-server
+# Build the applications
+RUN cd web && npm run build
+RUN cd server && npm run build
 
-# Production image, copy all the files and run next
+# Production image
 FROM base AS runner
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
-# Install deps needed in production image
-RUN apk add --no-cache ffmpeg
-RUN apk add --no-cache ffmpeg
-RUN apk add --no-cache gawk
+# Install production dependencies
+RUN apk add --no-cache ffmpeg gawk
 RUN npm install pm2 -g
 
-# Create a non-root user to run the app
+# Create a non-root user
 RUN addgroup --system --gid 1001 group 
 RUN adduser --system --uid 1001 sipuser 
 
-# Create directories for file-based storage
+WORKDIR /app
+
+# Copy built applications and configuration
+COPY --from=builder /app/ecosystem.config.js ./
+COPY --from=builder /app/web ./web
+COPY --from=builder /app/server/build ./server/build
+COPY --from=builder /app/data ./data
+
+# Create data directory for file storage
 RUN mkdir -p /data
+RUN chown -R sipuser:group /app /data
 
-# Set the correct permissions
-# RUN chown -R sipuser:group /
+USER sipuser
 
-USER sipuser 
+# Expose ports for both services
+EXPOSE 3000 8080
 
-EXPOSE 3000
-EXPOSE 8080
-
-ENV PORT 3000
-ENV TCP_SERVER_PORT 8080
-
-# CMD ["node", "server.js"]
-CMD [ "pm2-runtime", "ecosystem.config.js", "--env", "production" ]
-
+# Run with PM2
+CMD ["pm2-runtime", "ecosystem.config.js"]

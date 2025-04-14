@@ -10,7 +10,7 @@ const mkdir = promisify(fs.mkdir)
 const stat = promisify(fs.stat)
 
 // Base paths
-const DATA_DIR = path.join(process.cwd(), "data")
+const DATA_DIR = path.resolve(process.cwd(), "..", "data")
 const DEFAULT_COLLECTION = path.join(DATA_DIR, "default")
 
 // Ensure directories exist
@@ -87,6 +87,7 @@ export async function getCollections(): Promise<Collection[]> {
 export async function getCollectionById(id: string): Promise<Collection | null> {
   try {
     const collectionPath = path.join(DATA_DIR, id)
+    console.log("Collection path:", collectionPath)
     const infoPath = path.join(collectionPath, "info.json")
 
     if (!fs.existsSync(infoPath)) {
@@ -145,6 +146,7 @@ export async function getVideosForCollection(collectionId: string): Promise<Vide
   try {
     const collectionPath = path.join(DATA_DIR, collectionId)
 
+    console.log("Collection path:", collectionPath)
     if (!fs.existsSync(collectionPath)) {
       return []
     }

@@ -1,9 +1,0 @@
-{
-  "id": "default",
-  "name": "Default",
-  "description": "Default collection for videos",
-  "promptText": "Default collection for videos",
-  "duration": "30",
-  "createdAt": "2025-04-14T18:01:16.849Z",
-  "videos": []
-}
