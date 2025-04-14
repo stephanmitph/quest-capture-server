@@ -1,7 +1,7 @@
 import * as net from "net"
 import * as fs from "fs"
 import * as path from "path"
-import { createVideoDirectory, Video } from "./file-storage"
+import { createVideoDirectory, Video } from "../../shared/file-storage"
 import { createVideo } from "./video-processor"
 
 let clientId = 0

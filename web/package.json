@@ -1,13 +1,13 @@
 {
-  "name": "my-v0-project",
+  "name": "web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && cp -r public build/standalone/ && cp -r build/static build/standalone/.next/ && tsc --project tsconfig.server.json",
-    "start": "node .next/standalone/server.js",
-    "build-capture-server": "npx tsc capture/server.ts --outDir build-capture-server",
-    "start-capture-server": "node build/tcp-server/server.js",
+    "build": "next build && tsc --project tsconfig.server.json",
+    "start": "next start",
+    "_start": "NODE_ENV=production node .next/server.js",
+    "_build": "next build && cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/ && tsc --project tsconfig.server.json",
     "lint": "next lint"
   },
   "dependencies": {

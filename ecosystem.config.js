@@ -4,27 +4,20 @@ module.exports = {
     apps: [
         {
             name: "NextJS Server",
-            script: "build/server.js",
+            script: "server.js",
             watch: true,
+            cwd: "./web",
             env: {
                 "PORT": 3000,
-                "NODE_ENV": "development"
+                "NODE_ENV": "production"
             },
-            env_production: {
-                "PORT": 3000,
-                "NODE_ENV": "production",
-            }
         },
         {
             name: "TCP Server",
-            script: "build-capture-server/server.js",
+            script: "server/build/server/src/server.js",
             watch: true,
-            env: {
-                "PORT": 3000,
-                "NODE_ENV": "development"
-            },
             env_production: {
-                "PORT": 3000,
+                "PORT": 8080,
                 "NODE_ENV": "production",
             }
         }

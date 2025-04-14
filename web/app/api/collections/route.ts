@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { getCollections, createCollection } from "@/capture/file-storage"
+import { getCollections, createCollection } from "@/shared/file-storage"
 
 export async function GET(request: Request) {
   try {

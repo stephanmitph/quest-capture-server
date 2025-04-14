@@ -1,17 +1,19 @@
 import express from "express";
-import { parse } from 'url'
-import next from 'next'
 import path from 'path'
+import { parse } from 'url'
+import next from "next";
 
 const port = parseInt(process.env.PORT || '3000', 10)
 const dev = process.env.NODE_ENV !== 'production'
-const app = next({ dev })
+const dir = path.join(__dirname);
+const app = next({ dev, dir })
 const handle = app.getRequestHandler()
 
 app.prepare().then(() => {
   const server = express()
   // Serve /data folder statically
-  const dataPath = path.join(process.cwd(), "data");
+  const dataPath = path.join(process.cwd(), "../data");
+  console.log("Serving data from:", dataPath);
   server.use("/data", express.static(dataPath));
 
   // Handle everything else with Next.js
