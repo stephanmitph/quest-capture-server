@@ -1,6 +1,6 @@
 import { createTcpServer } from "./tcp-server";
 
-const PORT = process.env.TCP_SERVER_PORT || 8080;
+const PORT = process.env.PORT || 8080;
 
 const server = createTcpServer();
 

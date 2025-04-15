@@ -10,7 +10,7 @@ const mkdir = promisify(fs.mkdir)
 const stat = promisify(fs.stat)
 
 // Base paths
-const DATA_DIR = path.resolve(process.cwd(), "..", "data")
+const DATA_DIR = process.env.ABSOLUTE_DATA_PATH || path.resolve(process.cwd(), "data")
 const DEFAULT_COLLECTION = path.join(DATA_DIR, "default")
 
 // Ensure directories exist
