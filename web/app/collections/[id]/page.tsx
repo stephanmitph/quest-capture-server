@@ -15,13 +15,14 @@ import { CollectionInfoModal } from "@/components/modals/collection-info-modal"
 export default function CollectionPage() {
   const params = useParams()
   const router = useRouter()
-  const collectionId = params.id as string
+  const collectionId = params.id
   const { getCollection } = useCollections()
   const [collection, setCollection] = useState<Collection | null>(null)
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false)
 
   useEffect(() => {
-    const collectionData = getCollection(collectionId)
+    const id = parseInt(collectionId as string, 10)
+    const collectionData = getCollection(id)
     if (collectionData) {
       setCollection(collectionData)
     } else {

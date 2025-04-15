@@ -2,12 +2,12 @@
 
 import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
-import type { Collection, Video } from "@/capture/file-storage"
+import type { Collection, Video } from "@/shared/file-storage"
 
 type CollectionsContextType = {
   collections: Collection[]
   addCollection: (collection: Omit<Collection, "id" | "createdAt" | "videos">) => Promise<Collection>
-  getCollection: (id: string) => Collection | undefined
+  getCollection: (id: number) => Collection | undefined
   refreshCollections: () => Promise<void>
 }
 
@@ -87,8 +87,8 @@ export function CollectionsProvider({ children }: { children: React.ReactNode })
     }
   }
 
-  const getCollection = (id: string) => {
-    return collections.find((collection) => collection.id === id)
+  const getCollection = (id: number) => {
+    return collections.find((collection) => collection.id == id)
   }
 
   const refreshCollections = async () => {

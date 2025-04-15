@@ -18,7 +18,7 @@ module.exports = {
             name: "TCP Server",
             script: "server/build/server/src/server.js",
             watch: ["server"],
-            env_production: {
+            env: {
                 "PORT": 8080,
                 "NODE_ENV": "production",
                 "ABSOLUTE_DATA_PATH": "/Users/stephanbueler/ba/quest-capture-server/data"

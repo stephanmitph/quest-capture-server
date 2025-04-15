@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { getCollections, getCollectionById, createCollection } from "../../shared/file-storage";
+import { getCollections } from "../../shared/file-storage";
 
 export function createApiServer() {
   const app = express();
@@ -26,26 +26,6 @@ export function createApiServer() {
     } catch (error) {
       console.error("Error fetching collections:", error);
       res.status(500).json({ success: false, error: "Failed to fetch collections" });
-    }
-  });
-
-  app.get("/api/collections/:id", async (req, res) => {
-    try {
-      const { id } = req.params;
-      const collection = await getCollectionById(id);
-
-      if (!collection) {
-        res.status(404).json({ success: false, error: "Collection not found" });
-        return;
-      }
-
-      res.json({
-        success: true,
-        data: collection,
-      });
-    } catch (error) {
-      console.error("Error fetching collection:", error);
-      res.status(500).json({ success: false, error: "Failed to fetch collection" });
     }
   });
 

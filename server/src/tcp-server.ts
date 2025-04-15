@@ -14,7 +14,7 @@ const clients = new Map<
     state: "MESSAGE_TYPE" | "BEGIN" | "TRACKING_LENGTH" | "TRACKING_DATA" | "IMAGE_LENGTH" | "IMAGE_DATA"
     videoId: string | null
     videoDir: string | null
-    collectionId: string | null
+    collectionId: number | null
     trackingData: Array<any>
     expectedLength: number | null
     messageType: number | null
@@ -47,7 +47,7 @@ export function createTcpServer(): net.Server {
       client.buffer = Buffer.concat([client.buffer, data])
 
       // Process as many complete frames as possible
-      processData(id)
+      await processData(id)
     })
 
     socket.on("close", async () => {
@@ -74,7 +74,7 @@ export function createTcpServer(): net.Server {
 }
 
 // Process data from the buffer based on state machine
-function processData(clientId: number): void {
+async function processData(clientId: number): Promise<void> {
   const client = clients.get(clientId)!
 
   // Continue processing until we don't have enough data
@@ -99,10 +99,10 @@ function processData(clientId: number): void {
         break
       case "BEGIN":
         if (client.buffer.length < 4) return
-        client.collectionId = client.buffer.readInt32LE(0).toString()
+        client.collectionId = client.buffer.readInt32LE(0)
         client.buffer = client.buffer.subarray(4)
         client.state = "MESSAGE_TYPE"
-        initializeRecording(clientId);
+        await initializeRecording(clientId);
         break;
       case "TRACKING_LENGTH":
         // Need at least 4 bytes for tracking length
@@ -153,7 +153,7 @@ function processData(clientId: number): void {
         client.frameCount++
 
         // Process image data
-        saveImageFrame(clientId, imageData)
+        await saveImageFrame(clientId, imageData)
 
         // Reset for next message
         client.state = "MESSAGE_TYPE"
@@ -164,9 +164,9 @@ function processData(clientId: number): void {
   }
 }
 
-function initializeRecording(clientId: number): void {
+async function initializeRecording(clientId: number): Promise<void> {
   const client = clients.get(clientId)!
-  const videoInfo = createVideoDirectory(client.collectionId! == "0" ? "default" : client.collectionId!)
+  const videoInfo = await createVideoDirectory(client.collectionId!)
 
   client.frameCount = 0
   client.trackingData = []
@@ -182,6 +182,17 @@ function endRecording(clientId: number): void {
   saveTrackingData(clientId)
   saveVideoInfo(clientId)
   createVideo(client.videoDir!).then(() => {console.log("video created")})
+}
+
+// Handle a complete image frame
+async function saveImageFrame(clientId: number, frameData: Buffer): Promise<void> {
+  const client = clients.get(clientId)!
+  const filePath = path.join(client.videoDir!, `frame${client.frameCount}.jpg`)
+
+  fs.writeFile(filePath, frameData, (err) => {
+    if (err) console.error(`Error saving frame: ${err.message}`)
+    else console.log(`Saved frame to ${filePath}`)
+  })
 }
 
 // Handle tracking data
@@ -231,16 +242,4 @@ function saveVideoInfo(clientId: number): void {
   } catch (err) {
     console.error(`Error saving video info: ${err}`)
   }
-}
-
-// Handle a complete image frame
-function saveImageFrame(clientId: number, frameData: Buffer): void {
-  const client = clients.get(clientId)!
-  console.log(client.videoDir! + " " + client.frameCount)
-  const filePath = path.join(client.videoDir!, `frame${client.frameCount}.jpg`)
-
-  fs.writeFile(filePath, frameData, (err) => {
-    if (err) console.error(`Error saving frame: ${err.message}`)
-    else console.log(`Saved frame to ${filePath}`)
-  })
 }

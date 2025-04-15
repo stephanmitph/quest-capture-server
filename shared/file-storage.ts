@@ -1,4 +1,5 @@
 import * as fs from "fs"
+import { get } from "http"
 import * as path from "path"
 import { promisify } from "util"
 
@@ -10,7 +11,7 @@ const mkdir = promisify(fs.mkdir)
 const stat = promisify(fs.stat)
 
 // Base paths
-const DATA_DIR = process.env.ABSOLUTE_DATA_PATH || path.resolve(process.cwd(), "data")
+const DATA_DIR = process.env.ABSOLUTE_DATA_PATH!
 const DEFAULT_COLLECTION = path.join(DATA_DIR, "default")
 
 // Ensure directories exist
@@ -30,11 +31,12 @@ export async function ensureDirectoriesExist() {
 
 // Collection types
 export interface Collection {
-  id: string
+  id: number
+  folderName: string
   name: string
   description: string
   promptText: string
-  duration: number 
+  duration: number
   createdAt: string
   videos?: Video[]
 }
@@ -49,11 +51,8 @@ export interface Video {
 
 // Collection operations
 export async function getCollections(): Promise<Collection[]> {
-  await ensureDirectoriesExist()
-
   try {
     const collectionDirs = await readdir(DATA_DIR)
-
     const collections = await Promise.all(
       collectionDirs.map(async (dir) => {
         const collectionPath = path.join(DATA_DIR, dir)
@@ -69,9 +68,6 @@ export async function getCollections(): Promise<Collection[]> {
         const infoData = await readFile(infoPath, "utf8")
         const collection = JSON.parse(infoData) as Collection
 
-        // Get videos for this collection
-        collection.videos = await getVideosForCollection(collection.id)
-
         return collection
       }),
     )
@@ -84,18 +80,14 @@ export async function getCollections(): Promise<Collection[]> {
   }
 }
 
-export async function getCollectionById(id: string): Promise<Collection | null> {
+export async function getCollectionById(id: number): Promise<Collection | null> {
   try {
-    const collectionPath = path.join(DATA_DIR, id)
-    console.log("Collection path:", collectionPath)
-    const infoPath = path.join(collectionPath, "info.json")
+    const collections = await getCollections()
+    const collection = collections.find((c) => c.id == id)
 
-    if (!fs.existsSync(infoPath)) {
+    if (!collection) {
       return null
     }
-
-    const infoData = await readFile(infoPath, "utf8")
-    const collection = JSON.parse(infoData) as Collection
 
     // Get videos for this collection
     collection.videos = await getVideosForCollection(id)
@@ -108,12 +100,15 @@ export async function getCollectionById(id: string): Promise<Collection | null> 
 }
 
 export async function createCollection(
-  collectionData: Omit<Collection, "id" | "createdAt" | "videos">,
+  collectionData: Omit<Collection, "id" | "folderName" | "createdAt" | "videos">,
 ): Promise<Collection | null> {
   try {
-    // Generate ID from name
-    const id = collectionData.name.toLowerCase().replace(/\s+/g, "-")
-    const collectionPath = path.join(DATA_DIR, id)
+    // Generate a unique ID and folder name
+    // Id is max id + 1
+    const collections = await getCollections()
+    const id = collections.length == 0 ? 0 : collections.map((c) => c.id).reduce((a, b) => Math.max(a, b) + 1, 0);
+    const folderName = collectionData.name.toLowerCase().replace(/\s+/g, "-")
+    const collectionPath = path.join(DATA_DIR, folderName)
 
     // Check if collection already exists
     if (fs.existsSync(collectionPath)) {
@@ -126,6 +121,7 @@ export async function createCollection(
     // Create collection info
     const collection: Collection = {
       id,
+      folderName,
       ...collectionData,
       createdAt: new Date().toISOString(),
       videos: [],
@@ -142,11 +138,13 @@ export async function createCollection(
 }
 
 // Video operations
-export async function getVideosForCollection(collectionId: string): Promise<Video[]> {
+export async function getVideosForCollection(collectionId: number): Promise<Video[]> {
   try {
-    const collectionPath = path.join(DATA_DIR, collectionId)
+    const collection = (await getCollections()).find((c) => c.id == collectionId)
 
-    console.log("Collection path:", collectionPath)
+    if (!collection) return []
+
+    const collectionPath = path.join(DATA_DIR, collection.folderName)
     if (!fs.existsSync(collectionPath)) {
       return []
     }
@@ -177,31 +175,29 @@ export async function getVideosForCollection(collectionId: string): Promise<Vide
   }
 }
 
-export function createVideoDirectory(
-  collectionId: string | "default",
-): { videoId: string, directory: string } | null {
+export async function createVideoDirectory(collectionId: number): Promise<{ videoId: string, directory: string } | null> {
   try {
     // Generate a unique ID
     const videoId = `${Date.now()}`
-    const collectionPath = path.join(DATA_DIR, collectionId)
+    const collections = await getCollections()
+    const collection = collections.find((c) => c.id == collectionId)
+
+    if (!collection) {
+      throw new Error("Collection not found")
+    }
+
+    const collectionPath = path.join(DATA_DIR, collection.folderName)
     const videoPath = path.join(collectionPath, videoId)
 
-    // Check if collection exists
     if (!fs.existsSync(collectionPath)) {
       throw new Error("Collection not found")
     }
 
     // Create video directory
-    // await mkdir(videoPath, { recursive: true })
-    fs.mkdirSync(videoPath, { recursive: true })
+    await mkdir(videoPath, { recursive: true })
     return { videoId: videoId, directory: videoPath }
   } catch (error) {
     console.error("Error creating video:", error)
     return null
   }
-}
-
-// Get paths
-export function getCollectionDir(collectionId: string) {
-  return path.join(DATA_DIR, collectionId)
 }

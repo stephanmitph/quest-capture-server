@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { getCollectionById } from "@/shared/file-storage"
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: { id: number } }) {
   try {
     const { id } = await params
 

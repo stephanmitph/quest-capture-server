@@ -1,8 +1,11 @@
 import { createTcpServer } from "./tcp-server";
 import { createApiServer } from "./api-server";
+import { ensureDirectoriesExist } from "../../shared/file-storage";
 
 const TCP_PORT = process.env.PORT || '8080';
 const API_PORT = parseInt(TCP_PORT, 10) + 1;
+
+ensureDirectoriesExist().then(() => { console.log("Directories ensured"); })
 
 // Initialize TCP server
 const tcpServer = createTcpServer();
