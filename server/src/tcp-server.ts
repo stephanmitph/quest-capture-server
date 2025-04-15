@@ -66,6 +66,7 @@ export function createTcpServer(): net.Server {
     console.log("Server shutting down...")
     server.close(() => {
       console.log("TCP server closed")
+      process.exit()
     })
   })
 
@@ -165,7 +166,6 @@ function processData(clientId: number): void {
 
 function initializeRecording(clientId: number): void {
   const client = clients.get(clientId)!
-  console.log("client collectionid: ", client.collectionId)
   const videoInfo = createVideoDirectory(client.collectionId! == "0" ? "default" : client.collectionId!)
 
   client.frameCount = 0

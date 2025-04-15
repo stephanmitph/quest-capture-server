@@ -23,7 +23,7 @@ export async function ensureDirectoriesExist() {
       name: "Default",
       description: "Default collection for videos",
       promptText: "Default collection for videos",
-      duration: "30",
+      duration: 30,
     })
   }
 }
@@ -34,9 +34,9 @@ export interface Collection {
   name: string
   description: string
   promptText: string
-  duration: string
+  duration: number 
   createdAt: string
-  videos: Video[]
+  videos?: Video[]
 }
 
 export interface Video {

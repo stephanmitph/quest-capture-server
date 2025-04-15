@@ -5,23 +5,23 @@ module.exports = {
         {
             name: "NextJS Server",
             script: "server.js",
-            watch: true,
+            watch: ["web"],
             cwd: "./web",
             env: {
                 "PORT": 3000,
                 "NODE_ENV": "production",
-                "JWT_SECRET": "INSERT_JWT_SECRET_HERE",
-                "ABSOLUTE_DATA_PATH": "INSERT_ABSOLUTE_DATA_PATH_HERE",
+                "JWT_SECRET": "fcbec2ce5256aa0132e0907e82288180c75f618597646a3303d2cd470eb11564",
+                "ABSOLUTE_DATA_PATH": "/Users/stephanbueler/ba/quest-capture-server/data"
             },
         },
         {
             name: "TCP Server",
             script: "server/build/server/src/server.js",
-            watch: true,
+            watch: ["server"],
             env_production: {
                 "PORT": 8080,
                 "NODE_ENV": "production",
-                "ABSOLUTE_DATA_PATH": "INSERT_ABSOLUTE_DATA_PATH_HERE",
+                "ABSOLUTE_DATA_PATH": "/Users/stephanbueler/ba/quest-capture-server/data"
             }
         }
     ]

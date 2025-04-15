@@ -9,11 +9,15 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "path": "latest",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
     "fs": "latest",
-    "net": "latest"
+    "net": "latest",
+    "path": "latest"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.1",
     "@types/node": "^22",
     "typescript": "^5"
   },
