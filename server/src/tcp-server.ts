@@ -11,7 +11,7 @@ const clients = new Map<
     socket: net.Socket
     frameCount: number
     buffer: Buffer
-    state: "MESSAGE_TYPE" | "BEGIN" | "TRACKING_LENGTH" | "TRACKING_DATA" | "IMAGE_LENGTH" | "IMAGE_DATA"
+    state: "MESSAGE_TYPE" | "BEGIN" | "TRACKING_LENGTH" | "TRACKING_DATA" | "IMAGE_LENGTH" | "IMAGE_DATA" | "HAS_DEPTH" | "DEPTH_LENGTH" | "DEPTH_DATA"
     videoId: string | null
     videoDir: string | null
     collectionId: number | null
@@ -155,10 +155,54 @@ async function processData(clientId: number): Promise<void> {
         // Process image data
         await saveImageFrame(clientId, imageData)
 
+        // Move to check if depth data exists
+        client.state = "HAS_DEPTH"
+        client.expectedLength = null
+        client.messageType = null
+        break
+
+      case "HAS_DEPTH":
+        // Need 1 byte to check if depth data exists
+        if (client.buffer.length < 1) return
+        
+        const hasDepth = client.buffer[0] === 1
+        client.buffer = client.buffer.subarray(1)
+        
+        if (hasDepth) {
+          client.state = "DEPTH_LENGTH"
+          console.log(`Client #${clientId}: Frame has depth data`)
+        } else {
+          // No depth data, go back to message type
+          client.state = "MESSAGE_TYPE"
+          console.log(`Client #${clientId}: Frame has no depth data`)
+        }
+        break
+        
+      case "DEPTH_LENGTH":
+        // Need at least 4 bytes for depth data length
+        if (client.buffer.length < 4) return
+
+        // Get depth data length
+        client.expectedLength = client.buffer.readInt32LE(0)
+        client.buffer = client.buffer.subarray(4)
+        client.state = "DEPTH_DATA"
+        console.log(`Client #${clientId}: Expecting depth data of ${client.expectedLength} bytes`)
+        break
+        
+      case "DEPTH_DATA":
+        // Check if we have the full depth data
+        if (client.buffer.length < client.expectedLength!) return
+
+        // Extract depth data
+        const depthData = client.buffer.subarray(0, client.expectedLength!)
+        client.buffer = client.buffer.subarray(client.expectedLength!)
+
+        // Process depth data
+        await saveDepthFrame(clientId, depthData)
+
         // Reset for next message
         client.state = "MESSAGE_TYPE"
         client.expectedLength = null
-        client.messageType = null
         break
     }
   }
@@ -192,6 +236,17 @@ async function saveImageFrame(clientId: number, frameData: Buffer): Promise<void
   fs.writeFile(filePath, frameData, (err) => {
     if (err) console.error(`Error saving frame: ${err.message}`)
     else console.log(`Saved frame to ${filePath}`)
+  })
+}
+
+// Handle a complete depth frame
+async function saveDepthFrame(clientId: number, frameData: Buffer): Promise<void> {
+  const client = clients.get(clientId)!
+  const filePath = path.join(client.videoDir!, `depth${client.frameCount}.png`)
+
+  fs.writeFile(filePath, frameData, (err) => {
+    if (err) console.error(`Error saving depth frame: ${err.message}`)
+    else console.log(`Saved depth frame to ${filePath}`)
   })
 }
 
