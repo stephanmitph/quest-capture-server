@@ -13,6 +13,12 @@ module.exports = {
                 "JWT_SECRET": "fcbec2ce5256aa0132e0907e82288180c75f618597646a3303d2cd470eb11564",
                 "ABSOLUTE_DATA_PATH": "/Users/stephanbueler/ba/quest-capture-server/data"
             },
+            env_docker: {
+                "PORT": 3000,
+                "NODE_ENV": "production",
+                "JWT_SECRET": "fcbec2ce5256aa0132e0907e82288180c75f618597646a3303d2cd470eb11564",
+                "ABSOLUTE_DATA_PATH": "/app/data"
+            },
         },
         {
             name: "TCP Server",
@@ -22,6 +28,11 @@ module.exports = {
                 "PORT": 8080,
                 "NODE_ENV": "production",
                 "ABSOLUTE_DATA_PATH": "/Users/stephanbueler/ba/quest-capture-server/data"
+            },
+            env_docker: {
+                "PORT": 8080,
+                "NODE_ENV": "production",
+                "ABSOLUTE_DATA_PATH": "/app/data"
             }
         }
     ]

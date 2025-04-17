@@ -17,12 +17,9 @@ export function createApiServer() {
   // Collection endpoints
   app.get("/api/collections", async (req, res) => {
     try {
-      const collections = (await getCollections()).map((collection) => delete collection["videos"]);
+      const collections = (await getCollections()).map((collection) => { delete collection["videos"]; return collection });
 
-      res.json({
-        success: true,
-        data: collections,
-      });
+      res.json(collections);
     } catch (error) {
       console.error("Error fetching collections:", error);
       res.status(500).json({ success: false, error: "Failed to fetch collections" });

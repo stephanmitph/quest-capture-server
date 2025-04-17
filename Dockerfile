@@ -50,4 +50,4 @@ USER sipuser
 EXPOSE 3000 8080
 
 # Run with PM2
-CMD ["pm2-runtime", "ecosystem.config.js"]
+CMD ["pm2-runtime", "ecosystem.config.js", "--env", "docker"]
