@@ -78,7 +78,7 @@ export function Sidebar() {
         )}
       >
         <div className="p-6 border-b">
-          <h1 className="text-xl font-bold">Quest Stream Web App</h1>
+          <h1 className="text-xl font-bold">Quest Capture Server</h1>
         </div>
         <nav className="p-4 space-y-2">
           <Link

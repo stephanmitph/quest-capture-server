@@ -9,9 +9,9 @@ import { CollectionsProvider } from "@/lib/collections-context"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Quest Stream Web App",
+  title: "Quest Capture Server",
   description: "Video streaming application",
-    generator: 'v0.dev'
+  generator: 'v0.dev'
 }
 
 export default function RootLayout({

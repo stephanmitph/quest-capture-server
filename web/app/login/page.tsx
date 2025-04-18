@@ -51,7 +51,7 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
       <Card className="w-[350px]">
         <CardHeader>
-          <CardTitle className="text-2xl">Quest Stream Web App</CardTitle>
+          <CardTitle className="text-2xl">Quest Capture Server</CardTitle>
           <CardDescription>Login to access your video streams</CardDescription>
         </CardHeader>
         <CardContent>

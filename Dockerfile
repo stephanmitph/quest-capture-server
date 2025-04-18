@@ -37,12 +37,11 @@ WORKDIR /app
 # Copy built applications and configuration
 COPY --from=builder /app/ecosystem.config.js ./
 COPY --from=builder /app/web ./web
-COPY --from=builder /app/server/build ./server/build
-COPY --from=builder /app/data ./data
+COPY --from=builder /app/server ./server
 
 # Create data directory for file storage
-RUN mkdir -p /data
-RUN chown -R sipuser:group /app /data
+RUN mkdir -p /app/data
+RUN chown -R sipuser:group /app /app/data
 
 USER sipuser
 
