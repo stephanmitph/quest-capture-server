@@ -9,8 +9,15 @@ This server is still in development and manually tested. If you encounter any is
 - Capture raw image and tracking data from Quest (3 and 3S) devices
 - Web interface for content visualization
 - Docker support for easy deployment for self-hosting
+- Tracking data per frame
+  - Head position / rotation
+  - Hand position / rotation & Individual Bones
+  - Controller position / rotation / velocity
 
 ## Demo
+<video width="640" height="auto" controls>
+  <source src=".github/Demo.mp4" type="video/mp4">
+</video>
 
 ## Quick start  
 
