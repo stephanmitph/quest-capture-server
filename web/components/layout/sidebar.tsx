@@ -6,6 +6,12 @@ import { usePathname } from "next/navigation"
 import { Film, Video, User, Settings, Menu, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/lib/auth-context"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 export function Sidebar() {
   const pathname = usePathname()
@@ -81,16 +87,26 @@ export function Sidebar() {
           <h1 className="text-xl font-bold">Quest Capture Server</h1>
         </div>
         <nav className="p-4 space-y-2">
-          <Link
-            href="/live"
-            className={cn(
-              "flex items-center gap-3 p-3 rounded-md hover:bg-gray-100 transition-colors",
-              pathname.includes("/live") && "bg-gray-200",
-            )}
-          >
-            <Video className="h-5 w-5" />
-            <span>Live</span>
-          </Link>
+          <TooltipProvider delayDuration={300}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <Link
+                    href="/live"
+                    // className={cn( "flex items-center gap-3 p-3 rounded-md hover:bg-gray-100 transition-colors", pathname.includes("/live") && "bg-gray-200",)} // Enalbe this line once live page is implemented
+                    className={cn("flex items-center gap-3 p-3 rounded-md hover:bg-gray-200 transition-colors pointer-events-none text-gray-500")}
+                    title="Live page is not implemented yet"
+                  >
+                    <Video className="h-5 w-5" />
+                    <span>Live</span>
+                  </Link>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="top">
+                <p>Live page is not implemented yet</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           <Link
             href="/collections"
             className={cn(

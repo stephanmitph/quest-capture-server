@@ -5,7 +5,6 @@ import { Video } from "lucide-react"
 
 const liveStreams = [
   { id: 1, name: "Stream 1" },
-  { id: 2, name: "Stream 2" },
 ]
 
 export default function LivePage() {

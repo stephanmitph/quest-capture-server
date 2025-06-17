@@ -7,6 +7,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Video, Rewind } from "lucide-react"
 import { useCollections } from "@/lib/collections-context"
 import { Breadcrumbs, type BreadcrumbItem } from "@/components/ui/breadcrumbs"
+import { format } from "date-fns"
+
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 export default function VideoDetailPage() {
   const params = useParams()
@@ -91,12 +99,12 @@ export default function VideoDetailPage() {
         <div className="mb-6">
           <Breadcrumbs items={breadcrumbItems} />
           <h1 className="text-xl md:text-2xl font-bold">
-            Video {video.date} {video.time}
+            {format(new Date(parseInt(video.time)), 'eee, dd.MM.yyyy HH:mm')}
           </h1>
         </div>
 
         <div className="flex flex-col items-center">
-          <div className="w-full max-w-4xl border rounded-lg p-4 md:p-6 mb-4 aspect-video flex items-center justify-center">
+          <div className="w-full max-w-4xl  rounded-lg  mb-4 aspect-video flex items-center justify-center">
             {video.path ? (
               <video className="w-full h-full" controls src={video.path}>
                 Your browser does not support the video tag.
@@ -112,16 +120,27 @@ export default function VideoDetailPage() {
           </div>
 
           <div className="w-full max-w-4xl flex justify-end">
-            <Select value={selectedModel} onValueChange={setSelectedModel}>
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Select Model" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="model1">Model 1</SelectItem>
-                <SelectItem value="model2">Model 2</SelectItem>
-                <SelectItem value="model3">Model 3</SelectItem>
-              </SelectContent>
-            </Select>
+            <TooltipProvider delayDuration={300}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <Select disabled value={selectedModel} onValueChange={setSelectedModel}>
+                      <SelectTrigger className="w-[200px]">
+                        <SelectValue placeholder="Select Model" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="model1">Model 1</SelectItem>
+                        <SelectItem value="model2">Model 2</SelectItem>
+                        <SelectItem value="model3">Model 3</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  <p>Not implemented yet</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
       </div>
