@@ -94,7 +94,7 @@ export default function CollectionPage() {
                   <h3 className="text-lg font-bold">Video #{index + 1}</h3>
                   <div className="flex justify-between">
                     <p className="text-sm text-gray-500"> {format(new Date(parseInt(video.time)), 'eee, dd.MM.yyyy HH:mm')} </p>
-                    <p className="text-sm text-gray-500"> {video.duration}s </p>
+                    <p className="text-sm text-gray-500"> {Math.round(video.duration)}s </p>
                   </div>
                 </div>
               </Link>
