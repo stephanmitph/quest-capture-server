@@ -90,7 +90,7 @@ export function Sidebar() {
           <TooltipProvider delayDuration={300}>
             <Tooltip>
               <TooltipTrigger asChild>
-                <div>
+                <div className="hover:cursor-not-allowed">
                   <Link
                     href="/live"
                     // className={cn( "flex items-center gap-3 p-3 rounded-md hover:bg-gray-100 transition-colors", pathname.includes("/live") && "bg-gray-200",)} // Enalbe this line once live page is implemented

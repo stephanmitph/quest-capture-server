@@ -18,7 +18,6 @@ export default function CollectionsPage() {
   const [selectedCollection, setSelectedCollection] = useState<Collection | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const { collections, refreshCollections } = useCollections()
-
   const handleMoreClick = (e: React.MouseEvent, collection: Collection) => {
     e.preventDefault()
     e.stopPropagation()
