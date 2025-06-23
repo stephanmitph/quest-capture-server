@@ -4,6 +4,9 @@ FROM base AS builder
 
 WORKDIR /app
 
+# Set ABSOLUTE_DATA_PATH for build stage
+ENV ABSOLUTE_DATA_PATH=/app/data
+
 # Copy package files first for better caching
 COPY server/package*.json ./server/
 COPY web/package*.json ./web/
@@ -23,6 +26,8 @@ RUN cd server && npm run build
 FROM base AS runner
 
 ENV NODE_ENV=production
+# Set ABSOLUTE_DATA_PATH for runtime
+ENV ABSOLUTE_DATA_PATH=/app/data
 
 # Install production dependencies
 RUN apk add --no-cache ffmpeg gawk
