@@ -3,6 +3,7 @@ node_modules
 .next
 build
 data/*
+!data/.gitkeep
 .DS_Store
 **/*.tsbuildinfo
 ecosystem.config.js

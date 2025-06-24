@@ -30,6 +30,7 @@ https://github.com/user-attachments/assets/00d62809-4a3a-4eda-8820-71a6f5b2d977
 # Clone the repository
 git clone https://github.com/stephanmitph/quest-capture-server.git
 cd quest-capture-server
+# Make sure data folder is present, otherwise create one
 mkdir data
 # Start the server
 docker-compose up -d
@@ -40,7 +41,7 @@ docker-compose up -d
 git clone https://github.com/yourusername/quest-capture-server.git
 cd quest-capture-server
 
-# Make data folder
+# Make sure data folder is present, otherwise create one
 mkdir data
 
 # Install dependencies
@@ -53,6 +54,7 @@ cd server && npm run build && cd ..
 
 # Adjust ecosystem.config.js env variables (JWT_SECRET and ABSOLUTE_DATA_PATH). Docker env should be ok
 
+# Start server using pm2
 pm2 start ecosystem.config.js
 
 ```
