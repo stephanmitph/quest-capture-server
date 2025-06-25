@@ -4,6 +4,8 @@ import * as path from "path"
 import { createVideoDirectory, Video } from "../../shared/file-storage"
 import { createVideo } from "./video-processor"
 
+type ClientState = "MESSAGE_TYPE" | "BEGIN" | "TRACKING_LENGTH" | "TRACKING_DATA" | "IMAGE_LENGTH" | "IMAGE_DATA"
+
 let clientId = 0
 const clients = new Map<
   number,
@@ -11,13 +13,14 @@ const clients = new Map<
     socket: net.Socket
     frameCount: number
     buffer: Buffer
-    state: "MESSAGE_TYPE" | "BEGIN" | "TRACKING_LENGTH" | "TRACKING_DATA" | "IMAGE_LENGTH" | "IMAGE_DATA"
+    state: ClientState
     videoId: string | null
     videoDir: string | null
     collectionId: number | null
     trackingData: Array<any>
     expectedLength: number | null
     messageType: number | null
+    isInitializing: boolean
   }
 >()
 
@@ -39,6 +42,7 @@ export function createTcpServer(): net.Server {
       expectedLength: null,
       messageType: null,
       collectionId: null,
+      isInitializing: false
     })
 
     // Handle data received from client
@@ -98,11 +102,14 @@ async function processData(clientId: number): Promise<void> {
         }
         break
       case "BEGIN":
-        if (client.buffer.length < 4) return
+        if (client.buffer.length < 4 || client.isInitializing) return
         client.collectionId = client.buffer.readInt32LE(0)
         client.buffer = client.buffer.subarray(4)
-        client.state = "MESSAGE_TYPE"
+        console.log(`Client #${clientId} started recording for collection ${client.collectionId}`)
+        client.isInitializing = true 
         await initializeRecording(clientId);
+        client.isInitializing = false 
+        client.state = "MESSAGE_TYPE"
         break;
       case "TRACKING_LENGTH":
         // Need at least 4 bytes for tracking length
